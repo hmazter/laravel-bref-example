@@ -22,7 +22,7 @@ package:
 functions:
   website:
     handler: public/index.php
-    description: ''
+    description: 'Laravel website'
     memorySize: 2048
     timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
     layers:
