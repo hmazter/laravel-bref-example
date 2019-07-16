@@ -1,0 +1,32 @@
+service: laravel-bref
+
+provider:
+  name: aws
+  region: eu-north-1
+  runtime: provided
+  environment:
+    APP_ENV: production
+    APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
+    APP_STORAGE: /tmp
+    SESSION_DRIVER: array
+    VIEW_COMPILED_PATH: /tmp/storage/framework/views
+
+plugins:
+  - ./vendor/bref/bref
+
+package:
+  exclude:
+    - tests/**
+    - node_modules/**
+
+functions:
+  website:
+    handler: public/index.php
+    description: ''
+    memorySize: 2048
+    timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+    layers:
+      - ${bref:layer.php-73-fpm}
+    events:
+      - http: 'ANY /'
+      - http: 'ANY /{proxy+}'
