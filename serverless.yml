@@ -10,6 +10,7 @@ provider:
     APP_STORAGE: /tmp
     SESSION_DRIVER: array
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
+    ASSET_URL: https://wb-laravel-bref-assets.s3.eu-north-1.amazonaws.com
 
 plugins:
   - ./vendor/bref/bref
@@ -18,6 +19,7 @@ package:
   exclude:
     - tests/**
     - node_modules/**
+    - storage/**
 
 functions:
   website:
@@ -30,3 +32,13 @@ functions:
     events:
       - http: 'ANY /'
       - http: 'ANY /{proxy+}'
+
+resources:
+  Resources:
+    assetBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "wb-laravel-bref-assets"
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
