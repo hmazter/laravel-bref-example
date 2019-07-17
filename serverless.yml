@@ -4,11 +4,22 @@ provider:
   name: aws
   region: eu-north-1
   runtime: provided
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:GetItem'
+        - 'dynamodb:PutItem'
+      Resource:
+        - !GetAtt cacheTable.Arn
   environment:
     APP_ENV: production
     APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
     APP_STORAGE: /tmp
-    SESSION_DRIVER: array
+    CACHE_DRIVER: dynamodb
+    SESSION_DRIVER: dynamodb
+    SESSION_STORE: dynamodb
+    DYNAMODB_CACHE_TABLE: laravel_bref_cache
+    LOG_CHANNEL: stderr
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
     ASSET_URL: https://wb-laravel-bref-assets.s3.eu-north-1.amazonaws.com
 
@@ -17,6 +28,7 @@ plugins:
 
 package:
   exclude:
+    - .env
     - tests/**
     - node_modules/**
     - storage/**
@@ -42,3 +54,15 @@ resources:
         AccessControl: PublicRead
         WebsiteConfiguration:
           IndexDocument: index.html
+
+    cacheTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: laravel_bref_cache
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
