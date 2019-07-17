@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6a6a08e7ac2a12c8bc986642e1ee35d",
+    "content-hash": "ec037f59f55f2881e0d97a983680d4e9",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -91,16 +91,16 @@
         },
         {
             "name": "bref/bref",
-            "version": "0.5.0-beta1",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brefphp/bref.git",
-                "reference": "518a11fc76e0a52d1b1403caced3d5a5b653324c"
+                "reference": "5f2d6263353ae06d721de3bffb63f2c9b4ed566e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brefphp/bref/zipball/518a11fc76e0a52d1b1403caced3d5a5b653324c",
-                "reference": "518a11fc76e0a52d1b1403caced3d5a5b653324c",
+                "url": "https://api.github.com/repos/brefphp/bref/zipball/5f2d6263353ae06d721de3bffb63f2c9b4ed566e",
+                "reference": "5f2d6263353ae06d721de3bffb63f2c9b4ed566e",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
                 "lambda",
                 "serverless"
             ],
-            "time": "2019-07-10T09:24:47+00:00"
+            "time": "2019-07-17T11:06:43+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
