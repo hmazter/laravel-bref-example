@@ -46,6 +46,13 @@ functions:
       - http: 'ANY /'
       - http: 'ANY /{proxy+}'
 
+  artisan:
+    handler: artisan
+    description: 'Artisan console'
+    layers:
+      - ${bref:layer.php-73} # PHP
+      - ${bref:layer.console} # The "console" layer
+
 resources:
   Resources:
     assetBucket:
