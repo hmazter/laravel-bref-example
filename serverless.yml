@@ -52,6 +52,12 @@ functions:
     layers:
       - ${bref:layer.php-73} # PHP
       - ${bref:layer.console} # The "console" layer
+    events:
+      - schedule:
+          description: Running the Laravel Scheduler (schedule:run) each minute
+          rate: rate(1 minute)
+          input:
+            cli: schedule:run
 
 resources:
   Resources:
