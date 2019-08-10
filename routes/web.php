@@ -18,3 +18,9 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('queue', function () {
+    dispatch(function() {
+        echo 'This is a queue job generated at ' . now()->format('Y-m-d H:i:s');
+    });
+});

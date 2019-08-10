@@ -11,6 +11,11 @@ provider:
         - 'dynamodb:PutItem'
       Resource:
         - !GetAtt cacheTable.Arn
+    - Effect: 'Allow'
+      Action:
+        - 'sqs:SendMessage'
+      Resource:
+        - !GetAtt queue.Arn
   environment:
     APP_ENV: production
     APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
@@ -22,6 +27,9 @@ provider:
     LOG_CHANNEL: stderr
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
     ASSET_URL: https://wb-laravel-bref-assets.s3.eu-north-1.amazonaws.com
+    QUEUE_CONNECTION: sqs
+    SQS_QUEUE: https://sqs.eu-north-1.amazonaws.com/148530641072/laravel_bref_queue
+    SQS_PREFIX: https://sqs.eu-north-1.amazonaws.com/148530641072
 
 plugins:
   - ./vendor/bref/bref
@@ -59,6 +67,16 @@ functions:
           input:
             cli: schedule:run
 
+  queue:
+    handler: queue-handler.php
+    description: 'Laravel Queue handler for SQS'
+    layers:
+      - ${bref:layer.php-73}
+    events:
+      - sqs:
+          arn: !GetAtt queue.Arn
+          batchSize: 1
+
 resources:
   Resources:
     assetBucket:
@@ -80,3 +98,13 @@ resources:
         KeySchema:
           - AttributeName: key
             KeyType: HASH
+
+    queue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: laravel_bref_queue
+        ReceiveMessageWaitTimeSeconds: 20
+
+  Outputs:
+    queueUrl:
+      Value: !Ref queue
