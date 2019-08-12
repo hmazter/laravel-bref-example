@@ -3,6 +3,7 @@ service: laravel-bref
 provider:
   name: aws
   region: eu-north-1
+  stage: ${opt:stage, 'dev'} # defaults to dev, can be overridden with --stage <stage> on the commandline
   runtime: provided
   iamRoleStatements:
     - Effect: 'Allow'
@@ -10,12 +11,12 @@ provider:
         - 'dynamodb:GetItem'
         - 'dynamodb:PutItem'
       Resource:
-        - !GetAtt cacheTable.Arn
+        - !GetAtt Cache.Arn
     - Effect: 'Allow'
       Action:
         - 'sqs:SendMessage'
       Resource:
-        - !GetAtt queue.Arn
+        - !GetAtt Queue.Arn
   environment:
     APP_ENV: production
     APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
@@ -23,7 +24,7 @@ provider:
     CACHE_DRIVER: dynamodb
     SESSION_DRIVER: dynamodb
     SESSION_STORE: dynamodb
-    DYNAMODB_CACHE_TABLE: laravel_bref_cache
+    DYNAMODB_CACHE_TABLE: laravel_bref_cache_${self:provider.stage}
     LOG_CHANNEL: stderr
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
     ASSET_URL: !Join
@@ -31,7 +32,7 @@ provider:
       - - 'https://'
         - !GetAtt CDN.DomainName
     QUEUE_CONNECTION: sqs
-    SQS_QUEUE: https://sqs.eu-north-1.amazonaws.com/148530641072/laravel_bref_queue
+    SQS_QUEUE: !Ref Queue
     SQS_PREFIX: https://sqs.eu-north-1.amazonaws.com/148530641072
 
 plugins:
@@ -49,7 +50,7 @@ functions:
     handler: public/index.php
     description: 'Laravel website'
     memorySize: 2048
-    timeout: 10 # in seconds (API Gateway has a timeout of 30 seconds)
+    timeout: 10 # in seconds (API Gateway has a timeout of 29 seconds)
     reservedConcurrency: 10 # limit to 10 concurrent executions
     layers:
       - ${bref:layer.php-73-fpm}
@@ -77,23 +78,15 @@ functions:
       - ${bref:layer.php-73}
     events:
       - sqs:
-          arn: !GetAtt queue.Arn
+          arn: !GetAtt Queue.Arn
           batchSize: 1
 
 resources:
   Resources:
-    assetBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: "wb-laravel-bref-assets"
-        AccessControl: PublicRead
-        WebsiteConfiguration:
-          IndexDocument: index.html
-
-    cacheTable:
+    Cache:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: laravel_bref_cache
+        TableName: laravel_bref_cache_${self:provider.stage}
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: key
@@ -102,10 +95,10 @@ resources:
           - AttributeName: key
             KeyType: HASH
 
-    queue:
+    Queue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: laravel_bref_queue
+        QueueName: laravel_bref_queue_${self:provider.stage}
         ReceiveMessageWaitTimeSeconds: 20
 
     Assets:
@@ -149,4 +142,4 @@ resources:
 
   Outputs:
     queueUrl:
-      Value: !Ref queue
+      Value: !Ref Queue
