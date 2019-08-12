@@ -26,7 +26,10 @@ provider:
     DYNAMODB_CACHE_TABLE: laravel_bref_cache
     LOG_CHANNEL: stderr
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
-    ASSET_URL: https://wb-laravel-bref-assets.s3.eu-north-1.amazonaws.com
+    ASSET_URL: !Join
+      - ''
+      - - 'https://'
+        - !GetAtt CDN.DomainName
     QUEUE_CONNECTION: sqs
     SQS_QUEUE: https://sqs.eu-north-1.amazonaws.com/148530641072/laravel_bref_queue
     SQS_PREFIX: https://sqs.eu-north-1.amazonaws.com/148530641072
@@ -104,6 +107,45 @@ resources:
       Properties:
         QueueName: laravel_bref_queue
         ReceiveMessageWaitTimeSeconds: 20
+
+    Assets:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: wb-laravel-bref-assets-${self:provider.stage}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+
+    CDN:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          PriceClass: PriceClass_100
+          HttpVersion: http2
+          Origins:
+            - Id: Assets
+              DomainName: !GetAtt Assets.DomainName
+              CustomOriginConfig:
+                OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+          DefaultCacheBehavior:
+            AllowedMethods: [GET, HEAD]
+            TargetOriginId: Assets
+            #DefaultTTL: 0
+            #MinTTL: 0
+            #MaxTTL: 0
+            # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none # Forward cookies to use them in PHP
+            ViewerProtocolPolicy: redirect-to-https
+          CustomErrorResponses:
+            # Do not cache HTTP errors
+            - ErrorCode: 500
+              ErrorCachingMinTTL: 0
+            - ErrorCode: 504
+              ErrorCachingMinTTL: 0
 
   Outputs:
     queueUrl:
