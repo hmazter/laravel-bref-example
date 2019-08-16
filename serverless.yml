@@ -1,5 +1,11 @@
 service: laravel-bref
 
+custom:
+  asset_url: !Join
+    - ''
+    - - 'https://'
+      - !GetAtt CDN.DomainName
+
 provider:
   name: aws
   region: eu-north-1
@@ -19,21 +25,17 @@ provider:
         - !GetAtt Queue.Arn
   environment:
     APP_ENV: production
-    APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
+    APP_KEY: ${ssm:/kids-checkin/${self:provider.stage}/APP_KEY}
     APP_STORAGE: /tmp
+    ASSET_URL: ${self:custom.asset_url}
     CACHE_DRIVER: dynamodb
+    DYNAMODB_CACHE_TABLE: !Ref Cache
+    LOG_CHANNEL: stderr
+    QUEUE_CONNECTION: sqs
     SESSION_DRIVER: dynamodb
     SESSION_STORE: dynamodb
-    DYNAMODB_CACHE_TABLE: laravel_bref_cache_${self:provider.stage}
-    LOG_CHANNEL: stderr
-    VIEW_COMPILED_PATH: /tmp/storage/framework/views
-    ASSET_URL: !Join
-      - ''
-      - - 'https://'
-        - !GetAtt CDN.DomainName
-    QUEUE_CONNECTION: sqs
     SQS_QUEUE: !Ref Queue
-    SQS_PREFIX: https://sqs.eu-north-1.amazonaws.com/148530641072
+    VIEW_COMPILED_PATH: /tmp/storage/framework/views
 
 plugins:
   - ./vendor/bref/bref
