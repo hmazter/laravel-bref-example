@@ -59,6 +59,19 @@ functions:
       # Using HTTP API
       - httpApi: '*'
 
+  artisan:
+    handler: artisan
+    description: 'Artisan console'
+    layers:
+      - ${bref:layer.php-74} # PHP
+      - ${bref:layer.console} # The "console" layer
+    events:
+      - schedule:
+          description: Running the Laravel Scheduler (schedule:run) each minute
+          rate: rate(1 minute)
+          input:
+            cli: schedule:run
+
 resources:
   Resources:
     Cache:
