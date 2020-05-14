@@ -23,6 +23,8 @@ provider:
     APP_ENV: production
     APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
     APP_STORAGE: /tmp
+    # Serve static assets via CloudFront
+    ASSET_URL: ${self:custom.asset_url}
     # Store cache in a DynamoDB table
     CACHE_DRIVER: dynamodb
     DYNAMODB_CACHE_TABLE: !Ref Cache
@@ -38,6 +40,19 @@ provider:
 
 plugins:
   - ./vendor/bref/bref
+  - serverless-s3-sync
+
+custom:
+  s3Sync:
+    # Sync public dir with assets to the assets bucket
+    - bucketName: laravel-bref-dev-assets-uyfgsjfv
+      localDir: public
+      deleteRemoved: true
+      acl: public-read
+  asset_url: !Join
+    - ''
+    - - 'https://'
+      - !GetAtt CDN.DomainName
 
 package:
   excludeDevDependencies: false
@@ -49,6 +64,7 @@ package:
     - config/**
     - database/**
     - public/index.php
+    - public/mix-manifest.json
     - resources/lang/**
     - resources/views/**
     - routes/**
@@ -117,3 +133,38 @@ resources:
         QueueName: laravel-bref-${self:provider.stage}-queue
         ReceiveMessageWaitTimeSeconds: 20
         VisibilityTimeout: 120
+
+    Assets:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: laravel-bref-${self:provider.stage}-assets-uyfgsjfv
+
+    CDN:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          PriceClass: PriceClass_100
+          HttpVersion: http2
+          Origins:
+            - Id: Assets
+              DomainName: !GetAtt Assets.RegionalDomainName
+              S3OriginConfig: {}
+          DefaultCacheBehavior:
+            AllowedMethods: [GET, HEAD]
+            TargetOriginId: Assets
+            #DefaultTTL: 0
+            #MinTTL: 0
+            #MaxTTL: 0
+            # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none # Forward cookies to use them in PHP
+            ViewerProtocolPolicy: redirect-to-https
+          CustomErrorResponses:
+            # Do not cache HTTP errors
+            - ErrorCode: 500
+              ErrorCachingMinTTL: 0
+            - ErrorCode: 504
+              ErrorCachingMinTTL: 0
