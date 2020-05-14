@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('queue', function () {
+    dispatch(function() {
+        Log::info('This is a queue job generated at ' . now()->format('Y-m-d H:i:s'));
+    });
 });

@@ -50,9 +50,10 @@ return [
         ],
 
         'sqs' => [
-            'driver' => 'sqs',
+            'driver' => 'async-aws-sqs',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'token' => env('AWS_SESSION_TOKEN'),
             'prefix' => env('SQS_PREFIX', 'https://sqs.us-east-1.amazonaws.com/your-account-id'),
             'queue' => env('SQS_QUEUE', 'your-queue-name'),
             'suffix' => env('SQS_SUFFIX'),

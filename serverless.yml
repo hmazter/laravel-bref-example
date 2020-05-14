@@ -13,6 +13,11 @@ provider:
         - 'dynamodb:PutItem'
       Resource:
         - !GetAtt Cache.Arn
+    - Effect: 'Allow'
+      Action:
+        - 'sqs:SendMessage'
+      Resource:
+        - !GetAtt Queue.Arn
 
   environment:
     APP_ENV: production
@@ -24,8 +29,11 @@ provider:
     # Log to stderr to get CloudWatch Logs to pick it up
     LOG_CHANNEL: stderr
     # Store session in a DynamoDB table
+    QUEUE_CONNECTION: sqs
     SESSION_DRIVER: dynamodb
     SESSION_STORE: dynamodb
+    SQS_QUEUE: !Ref Queue
+    SQS_PREFIX: https://sqs.eu-north-1.amazonaws.com/148530641072
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
 
 plugins:
@@ -46,6 +54,7 @@ package:
     - routes/**
     - vendor/**
     - artisan
+    - queue-handler.php
 
 functions:
   website:
@@ -72,6 +81,22 @@ functions:
           input:
             cli: schedule:run
 
+  worker:
+    handler: queue-handler.php
+    description: Laravel Queue Handler
+    timeout: 60
+    memorySize: 1024
+    environment:
+      BREF_LOOP_MAX: 10 # handle 25 jobs before this process exits, Only runs the Laravel Boot for the first execution
+      LOG_STDERR_FORMATTER: "\\App\\Lambda\\LambdaLogFormatter" # Use a different formatter for the log message to be easier parsed by CloudWatch Logs
+    layers:
+      - ${bref:layer.php-74} # PHP
+    events:
+      - sqs:
+          enabled: true
+          arn: !GetAtt Queue.Arn
+          batchSize: 1
+
 resources:
   Resources:
     Cache:
@@ -85,3 +110,10 @@ resources:
         KeySchema:
           - AttributeName: key
             KeyType: HASH
+
+    Queue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: laravel-bref-${self:provider.stage}-queue
+        ReceiveMessageWaitTimeSeconds: 20
+        VisibilityTimeout: 120
