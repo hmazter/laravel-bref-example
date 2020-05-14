@@ -16,6 +16,13 @@ $app = new Illuminate\Foundation\Application(
 );
 
 /*
+ * Allow overriding the storage path in production using an environment variable.
+ */
+if (isset($_ENV['APP_STORAGE'])) {
+    $app->useStoragePath($_ENV['APP_STORAGE']);
+}
+
+/*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
