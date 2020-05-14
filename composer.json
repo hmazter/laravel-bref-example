@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
+        "async-aws/illuminate-cache": "^0.1.0",
         "bref/bref": "^0.5.24",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",

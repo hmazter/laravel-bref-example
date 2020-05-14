@@ -5,14 +5,27 @@ provider:
   region: eu-north-1
   stage: ${opt:stage, 'dev'} # defaults to dev, can be overridden with --stage <stage> on the commandline
   runtime: provided
+
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:GetItem'
+        - 'dynamodb:PutItem'
+      Resource:
+        - !GetAtt Cache.Arn
+
   environment:
     APP_ENV: production
     APP_KEY: "base64:+iTro5CgvnG6vFjPo06vGEpyBZHIezyuTfVcU/LDN7c="
     APP_STORAGE: /tmp
+    # Store cache in a DynamoDB table
+    CACHE_DRIVER: dynamodb
+    DYNAMODB_CACHE_TABLE: !Ref Cache
     # Log to stderr to get CloudWatch Logs to pick it up
     LOG_CHANNEL: stderr
-    # Dont store sessions
-    SESSION_DRIVER: array
+    # Store session in a DynamoDB table
+    SESSION_DRIVER: dynamodb
+    SESSION_STORE: dynamodb
     VIEW_COMPILED_PATH: /tmp/storage/framework/views
 
 plugins:
@@ -45,3 +58,17 @@ functions:
     events:
       # Using HTTP API
       - httpApi: '*'
+
+resources:
+  Resources:
+    Cache:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: laravel-bref-${self:provider.stage}-cache
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH

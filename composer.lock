@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12d0f7b51fd1a6a6132293357a34030a",
+    "content-hash": "f79e0ac0ccd93e411d48dc86a6b16a44",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -171,6 +171,118 @@
                 }
             ],
             "time": "2020-05-07T21:27:54+00:00"
+        },
+        {
+            "name": "async-aws/dynamo-db",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/async-aws/dynamo-db.git",
+                "reference": "feb84a83967ce85fab6eb46fc0b0c83d019e67d5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/async-aws/dynamo-db/zipball/feb84a83967ce85fab6eb46fc0b0c83d019e67d5",
+                "reference": "feb84a83967ce85fab6eb46fc0b0c83d019e67d5",
+                "shasum": ""
+            },
+            "require": {
+                "async-aws/core": "^1.0",
+                "ext-filter": "*",
+                "ext-json": "*",
+                "php": "^7.2.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AsyncAws\\DynamoDb\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "AsyncAws DynamoDb client.",
+            "keywords": [
+                "aws",
+                "dynamo-db"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/jderusse",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nyholm",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-05-03T09:18:49+00:00"
+        },
+        {
+            "name": "async-aws/illuminate-cache",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/async-aws/illuminate-cache.git",
+                "reference": "71a27b08ab23a16e71ab7cf9652b3c3826161a9d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/async-aws/illuminate-cache/zipball/71a27b08ab23a16e71ab7cf9652b3c3826161a9d",
+                "reference": "71a27b08ab23a16e71ab7cf9652b3c3826161a9d",
+                "shasum": ""
+            },
+            "require": {
+                "async-aws/dynamo-db": "^0.2",
+                "ext-json": "*",
+                "illuminate/cache": "^6.18.13 || ^7.10",
+                "illuminate/support": "^6.18.13 || ^7.10",
+                "php": "^7.2.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "AsyncAws\\Illuminate\\Cache\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AsyncAws\\Illuminate\\Cache\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "AsyncAws integration for Illuminate Cache.",
+            "keywords": [
+                "async-aws",
+                "aws",
+                "cache",
+                "illuminate"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/jderusse",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nyholm",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-05-10T12:21:00+00:00"
         },
         {
             "name": "async-aws/lambda",
